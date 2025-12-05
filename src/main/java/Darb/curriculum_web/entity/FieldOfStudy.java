@@ -30,8 +30,8 @@ public class FieldOfStudy {
     @Max(value = 10, message = "The value cannot be more than 10")
     private Integer studyLength;
 
-    @Column(name = "qualification", length = 200)
-    private String qualification;
+    @Column(name = "profile_name", nullable = false, length = 200, unique = true)
+    private String profileName;
 
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate = LocalDateTime.now();

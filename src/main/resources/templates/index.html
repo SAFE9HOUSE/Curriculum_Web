@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Учебные планы</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        .search-box { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<div style="text-align: center;">
+<h1>Система учета</h1>
+
+<!-- Строка поиска -->
+<div class="search-box">
+    <form method="get">
+        <input type="text" name="query" placeholder="Поиск..."
+               th:value="${query}">
+        <button type="submit">Найти</button>
+    </form>
+</div>
+
+<!-- Таблица направлений -->
+<table>
+    <thead>
+        <tr>
+            <th>Код направления</th>
+            <th>Наименование направления</th>
+            <th>Квалификация(степень)</th>
+            <th>Направленность(профиль)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="field : ${fields}">
+            <td th:text="${field.fieldCode}"></td>
+            <td th:text="${field.fieldName}"></td>
+            <td th:text="${field.degreeLevel}"></td>
+            <td th:text="${field.profileName}"></td>
+        </tr>
+    </tbody>
+</table>
+</div>
+</body>
+</html>
