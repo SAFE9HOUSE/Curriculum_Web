@@ -1,10 +1,11 @@
-package Darb.curriculum_web.entity;
+package Darb.curriculum_web.domain;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Data;
 import jakarta.validation.constraints.Min; 
 import jakarta.validation.constraints.Max;  
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "curriculum")
@@ -18,6 +19,7 @@ public class Curriculum {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "field_id", nullable = false) 
+    @JsonIgnore
     private FieldOfStudy field;
 
     @Column(name = "curriculum_name", nullable = false, length = 200)

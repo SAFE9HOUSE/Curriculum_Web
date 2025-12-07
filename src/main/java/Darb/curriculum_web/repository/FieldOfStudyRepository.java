@@ -1,8 +1,9 @@
 package Darb.curriculum_web.repository;
 
-import Darb.curriculum_web.entity.FieldOfStudy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import Darb.curriculum_web.domain.FieldOfStudy;
 
 import java.util.List;
 

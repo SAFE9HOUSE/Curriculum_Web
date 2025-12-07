@@ -1,4 +1,4 @@
-package Darb.curriculum_web.entity;
+package Darb.curriculum_web.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
