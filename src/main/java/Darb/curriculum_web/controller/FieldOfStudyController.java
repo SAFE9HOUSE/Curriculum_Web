@@ -3,7 +3,6 @@ package Darb.curriculum_web.controller;
 import Darb.curriculum_web.domain.FieldOfStudy;
 import Darb.curriculum_web.dto.ResponseMetadata;
 import Darb.curriculum_web.dto.SuccessResponse;
-import Darb.curriculum_web.exceptions.NoCurriculaFoundException;
 import Darb.curriculum_web.service.FieldOfStudyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,10 +46,6 @@ public class FieldOfStudyController {
         Map<String, Object> serviceData = fieldService.getFieldWithCurricula(id);
         
         List<?> curricula = (List<?>) serviceData.get("uchebniye_plany");
-        
-        if (curricula == null || curricula.isEmpty()) {
-            throw new NoCurriculaFoundException("У направления нет учебных планов");
-        }
 
         ResponseMetadata metadata = new ResponseMetadata();
         metadata.setObjectsCount(curricula.size());

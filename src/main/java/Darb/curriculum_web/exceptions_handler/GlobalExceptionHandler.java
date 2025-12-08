@@ -2,8 +2,8 @@ package Darb.curriculum_web.exceptions_handler;
 
 import Darb.curriculum_web.dto.ErrorResponse;
 import Darb.curriculum_web.dto.ResponseMetadata;
+import Darb.curriculum_web.exceptions.CurriculumNotFoundException;
 import Darb.curriculum_web.exceptions.EntityNotFoundException;
-import Darb.curriculum_web.exceptions.NoCurriculaFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,19 +18,6 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Обработка отсутствия учебных планов
-    @ExceptionHandler(NoCurriculaFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNoCurricula(NoCurriculaFoundException ex) {
-        ResponseMetadata metadata = createMetadata();
-        
-        ErrorResponse response = new ErrorResponse();
-        response.setError("У направления планов не найдено");
-        response.setContent("Проверьте корректность id направления");
-        response.setMetadata(metadata);
-        
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
     // Обработка отсутствия направления
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(EntityNotFoundException ex) {
@@ -38,6 +25,18 @@ public class GlobalExceptionHandler {
         
         ErrorResponse response = new ErrorResponse();
         response.setError("Направление не найдено");
+        response.setContent(ex.getMessage());
+        response.setMetadata(metadata);
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(CurriculumNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCurriculumNotFound(CurriculumNotFoundException ex) {
+        ResponseMetadata metadata = createMetadata();
+        
+        ErrorResponse response = new ErrorResponse();
+        response.setError("Учебный план не найден"); // ← Чёткое описание
         response.setContent(ex.getMessage());
         response.setMetadata(metadata);
         
@@ -63,7 +62,7 @@ public class GlobalExceptionHandler {
         ResponseMetadata metadata = createMetadata();
         
         ErrorResponse response = new ErrorResponse();
-        response.setError("Внутренняя ошибка сервера (неверный рут)");
+        response.setError("Внутренняя ошибка сервера (возможно неверный путь)");
         response.setContent("Обратитесь к администратору");
         response.setMetadata(metadata);
         

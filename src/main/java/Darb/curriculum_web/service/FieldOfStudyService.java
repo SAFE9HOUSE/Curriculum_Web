@@ -42,20 +42,9 @@ public class FieldOfStudyService {
     List<Curriculum> curricula = curriculumRepo.findByField_FieldId(id);
 
     // Возвращаем данные даже если планы отсутствуют
-    List<CurriculumDto> plansDto = curricula.stream().map(c -> {
-        CurriculumDto dto = new CurriculumDto();
-        dto.setCurriculumId(c.getCurriculumId());
-        dto.setCurriculumName(c.getCurriculumName());
-        dto.setYearStart(c.getYearStart());
-        dto.setYearEnd(c.getYearEnd());
-        dto.setArchiveStatus(c.isArchiveStatus());
-        dto.setCreatedDate(c.getCreatedDate());
-        dto.setLastModified(c.getLastModified());
-        dto.setFilePath(c.getFilePath());
-        dto.setCourse(c.getCourse());
-        dto.setStatus(c.getStatus());   
-        return dto;
-    }).collect(Collectors.toList());
+    List<CurriculumDto> plansDto = curricula.stream()
+    .map(CurriculumDto::new) 
+    .collect(Collectors.toList());
 
     Map<String, Object> response = new LinkedHashMap<>();
     response.put("direction_info", field);
