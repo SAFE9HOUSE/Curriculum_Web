@@ -2,6 +2,7 @@ package Darb.curriculum_web.exceptions_handler;
 
 import Darb.curriculum_web.dto.ErrorResponse;
 import Darb.curriculum_web.dto.ResponseMetadata;
+import Darb.curriculum_web.exceptions.CurriculumNotFoundException;
 import Darb.curriculum_web.exceptions.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,18 @@ public class GlobalExceptionHandler {
         
         ErrorResponse response = new ErrorResponse();
         response.setError("Направление не найдено");
+        response.setContent(ex.getMessage());
+        response.setMetadata(metadata);
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(CurriculumNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCurriculumNotFound(CurriculumNotFoundException ex) {
+        ResponseMetadata metadata = createMetadata();
+        
+        ErrorResponse response = new ErrorResponse();
+        response.setError("Учебный план не найден"); // ← Чёткое описание
         response.setContent(ex.getMessage());
         response.setMetadata(metadata);
         
