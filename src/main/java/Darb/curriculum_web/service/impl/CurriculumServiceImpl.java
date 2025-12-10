@@ -34,17 +34,18 @@ public class CurriculumServiceImpl implements CurriculumService {
                 d.discipline_id,
                 d.discipline_code,
                 d.discipline_name,
-                sdc.term AS semester,
-                sdc.term_hours AS total_hours,  -- ← важно: точное написание
+                sdc.term AS semester,  -- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: term → semester
+                sdc.term_hours AS total_hours,
                 t.teacher_id,
                 t.fio,
-                sdt.teacher_role AS role,      -- ← точное написание
+                sdt.teacher_role AS role,
                 sdt.hours_assigned
             FROM curriculum c
             INNER JOIN field_of_study f ON c.field_id = f.field_id
             INNER JOIN subsidiary_discip_curriculum sdc ON c.curriculum_id = sdc.curriculum_id
             INNER JOIN discipline d ON sdc.discipline_id = d.discipline_id
-            LEFT JOIN subsidiary_discip_teacher sdt ON sdc.subsidiary_discip_curriculum_id = sdt.subsidiary_discip_curriculum_id
+            LEFT JOIN subsidiary_discip_teacher sdt 
+                ON sdc.subsidiary_discip_curriculum_id = sdt.subsidiary_discip_curriculum_id
             LEFT JOIN teacher t ON sdt.teacher_id = t.teacher_id
             WHERE c.curriculum_id = ?
             ORDER BY sdc.term, d.discipline_name, t.fio
@@ -65,16 +66,24 @@ public class CurriculumServiceImpl implements CurriculumService {
             (String) firstRow.get("degree_level")
         );
 
-        Map<Long, DisciplineDtoBuilder> disciplineBuilders = new HashMap<>();
+        // ИСПРАВЛЕНО: Используем составной ключ (дисциплина + семестр)
+        Map<String, DisciplineDtoBuilder> disciplineBuilders = new HashMap<>();
         
         for (Map<String, Object> row : rows) {
             Long discId = (Long) row.get("discipline_id");
-            disciplineBuilders.computeIfAbsent(discId, k -> new DisciplineDtoBuilder(row));
-            disciplineBuilders.get(discId).addTeacher(row);
+            Integer semester = (Integer) row.get("semester");
+            // Уникальный ключ для разделения дисциплин по семестрам
+            String key = discId + "_" + semester;  
+            
+            disciplineBuilders.computeIfAbsent(key, k -> new DisciplineDtoBuilder(row));
+            disciplineBuilders.get(key).addTeacher(row);
         }
 
+        // Сортируем по семестрам и названиям дисциплин
         List<DisciplineDto> disciplines = disciplineBuilders.values().stream()
             .map(DisciplineDtoBuilder::build)
+            .sorted(Comparator.comparingInt(DisciplineDto::getTerm)
+                    .thenComparing(DisciplineDto::getDisciplineName))
             .collect(Collectors.toList());
 
         return new CurriculumDisciplinesResponseDto(
@@ -92,31 +101,36 @@ public class CurriculumServiceImpl implements CurriculumService {
         private final String disciplineName;
         private final Integer semester;
         private final Integer totalHours;
-        private final List<TeacherInDisciplineDto> teachers = new ArrayList<>();
+        // ИСПРАВЛЕНО: Используем Map для дедупликации преподавателей
+        private final Map<String, TeacherInDisciplineDto> teachers = new LinkedHashMap<>();
 
         public DisciplineDtoBuilder(Map<String, Object> row) {
             this.disciplineId = (Long) row.get("discipline_id");
             this.disciplineCode = (String) row.get("discipline_code");
             this.disciplineName = (String) row.get("discipline_name");
-            this.semester = (Integer) row.get("semester");
-            // Важно: точно как в SQL-алиасе!
-            this.totalHours = (Integer) row.get("total_hours"); 
+            this.semester = (Integer) row.get("semester");  // Теперь совпадает с SQL
+            this.totalHours = (Integer) row.get("total_hours");
         }
 
         public void addTeacher(Map<String, Object> row) {
-            // Проверяем существование teacher_id
-            if (row.get("teacher_id") != null) {
-                // Безопасное извлечение часов
-                Integer hoursAssigned = (Integer) row.get("hours_assigned");
-                if (hoursAssigned == null) hoursAssigned = 0;
-                
-                this.teachers.add(new TeacherInDisciplineDto(
-                    (Long) row.get("teacher_id"),
-                    (String) row.get("fio"),
-                    (String) row.get("role"), // ← точно как в SQL!
-                    hoursAssigned
-                ));
-            }
+            if (row.get("teacher_id") == null) return;
+            
+            Long teacherId = (Long) row.get("teacher_id");
+            String role = (String) row.get("role");
+            // Уникальный ключ: преподаватель + роль
+            String dedupeKey = teacherId + "_" + role;
+            
+            // Пропускаем дубликаты
+            if (teachers.containsKey(dedupeKey)) return;
+            
+            Integer hours = Optional.ofNullable((Integer) row.get("hours_assigned")).orElse(0);
+            
+            teachers.put(dedupeKey, new TeacherInDisciplineDto(
+                teacherId,
+                (String) row.get("fio"),
+                role,
+                hours
+            ));
         }
 
         public DisciplineDto build() {
@@ -126,7 +140,7 @@ public class CurriculumServiceImpl implements CurriculumService {
                 disciplineName,
                 semester,
                 totalHours,
-                teachers
+                new ArrayList<>(teachers.values())  // Преобразуем в список
             );
         }
     }

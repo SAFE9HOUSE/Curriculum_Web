@@ -19,7 +19,7 @@ public class CurriculumController {
         this.curriculumService = curriculumService;
     }
 
-    @GetMapping("/{curriculumId}/disciplines")
+    @GetMapping("/{curriculumId}")
     public ResponseEntity<SuccessResponse<CurriculumDisciplinesResponseDto>> getCurriculumDisciplines(
             @PathVariable Long curriculumId) {
 
