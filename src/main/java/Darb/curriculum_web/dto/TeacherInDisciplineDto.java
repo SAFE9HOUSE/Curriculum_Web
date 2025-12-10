@@ -9,4 +9,11 @@ public class TeacherInDisciplineDto {
     String fio;
     String role; 
     Integer hoursAssigned; 
+    String department;
+    String post;
+    String academicStatus;
+    String academicDegree;
+    String email;
+    String phone;
+    String information;
 }

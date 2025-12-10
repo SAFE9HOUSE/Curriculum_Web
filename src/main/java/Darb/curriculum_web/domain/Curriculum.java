@@ -36,7 +36,7 @@ public class Curriculum {
     private Integer yearEnd;
 
     @Column(name = "archive_status")
-    private boolean archiveStatus = false;
+    private Boolean archiveStatus = false;
 
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate = LocalDateTime.now();

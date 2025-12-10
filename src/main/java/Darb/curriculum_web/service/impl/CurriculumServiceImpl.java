@@ -27,10 +27,17 @@ public class CurriculumServiceImpl implements CurriculumService {
                 c.curriculum_id,
                 c.curriculum_name,
                 c.course,
+                c.year_start,
+                c.year_end,
+                c.archive_status,
+                c.file_path,
+                c.status,
                 f.field_id,
                 f.field_code,
                 f.field_name,
                 f.degree_level,
+                f.study_length,
+                f.profile_name,
                 d.discipline_id,
                 d.discipline_code,
                 d.discipline_name,
@@ -63,7 +70,9 @@ public class CurriculumServiceImpl implements CurriculumService {
             (Long) firstRow.get("field_id"),
             (String) firstRow.get("field_code"),
             (String) firstRow.get("field_name"),
-            (String) firstRow.get("degree_level")
+            (String) firstRow.get("degree_level"),
+            (Integer) firstRow.get("study_length"),
+            (String) firstRow.get("profile_name")
         );
 
         // ИСПРАВЛЕНО: Используем составной ключ (дисциплина + семестр)
@@ -90,6 +99,11 @@ public class CurriculumServiceImpl implements CurriculumService {
             (Long) firstRow.get("curriculum_id"),
             (String) firstRow.get("curriculum_name"),
             (Integer) firstRow.get("course"),
+            (Integer) firstRow.get("year_start"),
+            (Integer) firstRow.get("year_end"),
+            (Boolean) firstRow.get("archive_status"),
+            (String) firstRow.get("file_path"),
+            (String) firstRow.get("status"),
             fieldDto,
             disciplines
         );
@@ -101,6 +115,10 @@ public class CurriculumServiceImpl implements CurriculumService {
         private final String disciplineName;
         private final Integer semester;
         private final Integer totalHours;
+        private final Integer independentHours;
+        private final String report;
+        private final String description;
+        private final String competences;
         // ИСПРАВЛЕНО: Используем Map для дедупликации преподавателей
         private final Map<String, TeacherInDisciplineDto> teachers = new LinkedHashMap<>();
 
@@ -108,8 +126,12 @@ public class CurriculumServiceImpl implements CurriculumService {
             this.disciplineId = (Long) row.get("discipline_id");
             this.disciplineCode = (String) row.get("discipline_code");
             this.disciplineName = (String) row.get("discipline_name");
-            this.semester = (Integer) row.get("semester");  // Теперь совпадает с SQL
+            this.semester = (Integer) row.get("semester");  
             this.totalHours = (Integer) row.get("total_hours");
+            this.independentHours = (Integer) row.get("hours_indepndent");
+            this.report = (String) row.get("report");
+            this.description = (String) row.get("description");
+            this.competences = (String) row.get("competences");
         }
 
         public void addTeacher(Map<String, Object> row) {
@@ -129,7 +151,14 @@ public class CurriculumServiceImpl implements CurriculumService {
                 teacherId,
                 (String) row.get("fio"),
                 role,
-                hours
+                hours,
+                (String) row.get("department"),
+                (String) row.get("post"),
+                (String) row.get("academic_status"),
+                (String) row.get("academic_degree"),
+                (String) row.get("email"),
+                (String) row.get("phone"),
+                (String) row.get("information") 
             ));
         }
 
@@ -140,6 +169,10 @@ public class CurriculumServiceImpl implements CurriculumService {
                 disciplineName,
                 semester,
                 totalHours,
+                independentHours,
+                report,
+                description,
+                competences,
                 new ArrayList<>(teachers.values())  // Преобразуем в список
             );
         }

@@ -24,7 +24,7 @@ public class CurriculumDto {
         this.curriculumName = curriculum.getCurriculumName();
         this.yearStart = curriculum.getYearStart();
         this.yearEnd = curriculum.getYearEnd();
-        this.archiveStatus = curriculum.isArchiveStatus();
+        this.archiveStatus = curriculum.getArchiveStatus();
         this.createdDate = curriculum.getCreatedDate();
         this.lastModified = curriculum.getLastModified();
         this.filePath = curriculum.getFilePath();

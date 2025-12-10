@@ -8,4 +8,6 @@ public class FieldOfStudyBriefDto {
     String fieldCode;
     String fieldName;
     String degreeLevel; 
+    Integer studyLength;
+    String profileName;
 }

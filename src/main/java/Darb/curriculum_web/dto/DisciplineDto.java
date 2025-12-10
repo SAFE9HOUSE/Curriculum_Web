@@ -10,5 +10,9 @@ public class DisciplineDto {
     String disciplineName;
     Integer term; 
     Integer totalHours; 
+    Integer independentHours;
+    String report;
+    String description;
+    String competences;
     List<TeacherInDisciplineDto> teachers; 
 }
