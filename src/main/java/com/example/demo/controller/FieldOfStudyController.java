@@ -16,6 +16,8 @@ import com.example.demo.dto.ResponseMetadata;
 import com.example.demo.dto.SuccessResponse;
 import com.example.demo.services.FieldOfStudyService;
 
+import com.example.demo.exceptions.ValidateFieldId;
+
 @RestController
 @RequestMapping("/api/fields")
 public class FieldOfStudyController {
@@ -43,13 +45,11 @@ public class FieldOfStudyController {
         }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SuccessResponse<Map<String, Object>>> getFieldWithCurricula(@PathVariable Long id) {
+    public ResponseEntity<SuccessResponse<Map<String, Object>>> getFieldWithCurricula(@PathVariable String id) {
         
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("Id направления должно быть положительным целым числом");
-        }
+        Long validId = ValidateFieldId.validateAndConvertFieldId(id);
         
-        Map<String, Object> serviceData = _fieldService.getFieldWithCurricula(id);
+        Map<String, Object> serviceData = _fieldService.getFieldWithCurricula(validId);
         
         List<?> curricula = (List<?>) serviceData.get("uchebniye_plany");
 

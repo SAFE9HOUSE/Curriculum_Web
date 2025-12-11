@@ -12,6 +12,8 @@ import com.example.demo.dto.StudyPlansDisciplinesResponseDto;
 import com.example.demo.dto.SuccessResponse;
 import com.example.demo.services.StudyPlansService;
 
+import com.example.demo.exceptions.ValidateStudyPlanId;
+
 
 @RestController
 @RequestMapping("/api/curricula")
@@ -25,13 +27,11 @@ public class StudyPlansController {
 
     @GetMapping("/{studyPlanId}")
     public ResponseEntity<SuccessResponse<StudyPlansDisciplinesResponseDto>> getStudyPlanDisciplines(
-            @PathVariable Long studyPlanId) {
+            @PathVariable String studyPlanId) {
+               
+        Long validateStudyPlanId = ValidateStudyPlanId.validateAndConvertStudyPlanId(studyPlanId);
 
-        if (studyPlanId == null || studyPlanId <= 0) {
-            throw new IllegalArgumentException("Id учебного плана должно быть положительным целым числом");
-        }
-
-        StudyPlansDisciplinesResponseDto data = _studyPlanService.getDisciplinesByStudyPlanId(studyPlanId);
+        StudyPlansDisciplinesResponseDto data = _studyPlanService.getDisciplinesByStudyPlanId(validateStudyPlanId);
 
         ResponseMetadata metadata = new ResponseMetadata();
         metadata.setResponseTime(LocalDateTime.now());
@@ -44,3 +44,5 @@ public class StudyPlansController {
         return ResponseEntity.ok(response);
     }
 }
+
+
