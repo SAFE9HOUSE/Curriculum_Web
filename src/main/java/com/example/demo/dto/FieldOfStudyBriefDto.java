@@ -10,4 +10,5 @@ public class FieldOfStudyBriefDto {
     String degreeLevel; 
     Integer studyLength;
     String profileName;
+    String qualification;
 }
