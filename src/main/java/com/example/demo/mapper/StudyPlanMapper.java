@@ -48,7 +48,8 @@ public class StudyPlanMapper {
             (String) row.get("field_name"),
             (String) row.get("degree_level"),
             (Integer) row.get("study_length"),
-            (String) row.get("profile_name")
+            (String) row.get("profile_name"),
+            (String) row.get("qualification")
         );
     }
     
@@ -56,7 +57,7 @@ public class StudyPlanMapper {
         // Группируем строки по дисциплине и семестру
         Map<String, List<Map<String, Object>>> groupedRows = rows.stream()
             .collect(Collectors.groupingBy(row -> 
-                row.get("discipline_id") + "_" + row.get("semester")
+                row.get("discipline_id") + "_" + row.get("term")
             ));
         
         // Преобразуем каждую группу в DisciplineDto
@@ -82,8 +83,9 @@ public class StudyPlanMapper {
             (Long) firstRow.get("discipline_id"),
             (String) firstRow.get("discipline_code"),
             (String) firstRow.get("discipline_name"),
-            (Integer) firstRow.get("semester"),
-            (Integer) firstRow.get("total_hours"),
+            (Integer) firstRow.get("term"),
+            (Integer) firstRow.get("term_hours"),
+            (Integer) firstRow.get("hours_total"),
             (Integer) firstRow.get("hours_indepndent"),
             (String) firstRow.get("report"),
             (String) firstRow.get("description"),

@@ -11,6 +11,7 @@ public class DisciplineDto {
     String disciplineCode;
     String disciplineName;
     Integer term; 
+    Integer termHours;
     Integer totalHours; 
     Integer independentHours;
     String report;

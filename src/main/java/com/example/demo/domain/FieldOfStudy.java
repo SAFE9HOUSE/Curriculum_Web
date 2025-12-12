@@ -39,6 +39,9 @@ public class FieldOfStudy {
     @Column(name = "profile_name", nullable = false, length = 200, unique = true)
     private String profileName;
 
+    @Column(name = "qualification", length = 200)
+    private String qualification;
+
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate = LocalDateTime.now();
 }
