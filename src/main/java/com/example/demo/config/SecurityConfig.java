@@ -40,7 +40,6 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 
-                // === ИЗМЕНЕНИЕ ЗДЕСЬ: раздели доступ по ролям ===
                 // Только ADMIN
                 .requestMatchers("/api/test/admin-only").hasRole("ADMIN")
                 
@@ -53,7 +52,7 @@ public class SecurityConfig {
                 // Всё в /api/admin/ доступно обеим ролям
                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "MANAGER")
                 
-                // Остальное API - публичное (или authenticated() если нужно)
+                // Остальное API - публичное 
                 .requestMatchers("/api/**").permitAll()
                 
                 .anyRequest().permitAll()

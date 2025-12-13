@@ -36,7 +36,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String jwt;
         final String username;
         
-        log.info("🔐 JwtAuthFilter для: {}", request.getServletPath());
+        log.info("JwtAuthFilter для: {}", request.getServletPath());
         
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -51,19 +51,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 if (jwtUtil.validateToken(jwt)) {
                     String role = jwtUtil.extractRole(jwt);
-                    log.info("👤 User: {}, Role from token: {}", username, role);
+                    log.info("User: {}, Role from token: {}", username, role);
                     
-                    // 🔥 ВАЖНО: Spring Security требует префикс ROLE_
+                    
                     String springRole;
                     if (role == null || role.trim().isEmpty()) {
-                        log.error("❌ Роль не найдена в токене");
+                        log.error("Роль не найдена в токене");
                         filterChain.doFilter(request, response);
                         return;
                     }
                     
                     // Если роль уже с ROLE_, оставляем
                     if (role.startsWith("ROLE_")) {
-                        springRole = role.toUpperCase(); // ROLE_ADMIN
+                        springRole = role.toUpperCase(); 
                     } else {
                         // Добавляем ROLE_ префикс: ADMIN → ROLE_ADMIN
                         springRole = "ROLE_" + role.toUpperCase();
@@ -81,11 +81,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     
-                    log.info("✅ Аутентификация установлена: {} - {}", username, springRole);
+                    log.info("Аутентификация установлена: {} - {}", username, springRole);
                 }
             }
         } catch (Exception e) {
-            log.error("❌ Ошибка: {}", e.getMessage());
+            log.error("Ошибка: {}", e.getMessage());
         }
         
         filterChain.doFilter(request, response);
