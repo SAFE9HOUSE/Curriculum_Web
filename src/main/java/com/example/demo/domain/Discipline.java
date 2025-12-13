@@ -30,7 +30,7 @@ public class Discipline {
     @Column(name = "hours_independent")
     private Integer hoursIndependent;
 
-    @Column(name = "otchet", nullable = false, length = 100)
+    @Column(name = "report", nullable = false, length = 100)
     private String report;
 
     @Column(name = "description")
