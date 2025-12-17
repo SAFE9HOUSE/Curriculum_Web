@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.domain.FieldOfStudy;
 import com.example.demo.domain.StudyPlan;
@@ -14,6 +15,7 @@ import com.example.demo.dto.StudyPlanDto;
 import com.example.demo.dto.repository.FieldOfStudyRepository;
 import com.example.demo.dto.repository.StudyPlanRepository;
 import com.example.demo.exceptions.FieldNotFoundException;
+import com.example.demo.exceptions.DuplicateResourceException;
 
 @Service
 public class FieldOfStudyService {
@@ -31,20 +33,35 @@ public class FieldOfStudyService {
     }
 
     public Map<String, Object> getFieldWithCurricula(Long id) {
-    if (id == null) throw new IllegalArgumentException("ID не может быть пустым");
+        if (id == null) throw new IllegalArgumentException("ID не может быть пустым");
 
-    FieldOfStudy field = fieldRepo.findById(id)
+        FieldOfStudy field = fieldRepo.findById(id)
         .orElseThrow(() -> new FieldNotFoundException("Направление не найдено с ID: " + id));
 
-    List<StudyPlan> curricula = curriculumRepo.findByField_FieldId(id);
+        List<StudyPlan> curricula = curriculumRepo.findByField_FieldId(id);
 
-    List<StudyPlanDto> plansDto = curricula.stream()
-    .map(StudyPlanDto::new) 
-    .collect(Collectors.toList());
+        List<StudyPlanDto> plansDto = curricula.stream()
+        .map(StudyPlanDto::new) 
+        .collect(Collectors.toList());
 
-    Map<String, Object> response = new LinkedHashMap<>();
-    response.put("direction_info", field);
-    response.put("uchebniye_plany", plansDto);
-    return response;
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("direction_info", field);
+        response.put("uchebniye_plany", plansDto);
+        return response;
     }
+
+    // создание направления  
+    @Transactional
+    public FieldOfStudy createField(FieldOfStudy field) {
+        
+        // Проверка уникальности названия профиля
+        if (fieldRepo.existsByProfileName(field.getProfileName())) {
+            throw new DuplicateResourceException(
+                "Профиль с наименованием '" + field.getProfileName() + "' уже существует"
+            );
+        }
+        
+        return fieldRepo.save(field);
+    }
+
 }

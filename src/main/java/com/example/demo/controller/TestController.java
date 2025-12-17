@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/test")
 public class TestController {
     
-    // ЭТОТ ЭНДПОИНТ ТЕБЯ ИНТЕРЕСУЕТ
     @GetMapping("/admin-only")
     public Map<String, Object> adminOnly() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

@@ -1,9 +1,11 @@
 package com.example.demo.exception_handler;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -11,6 +13,9 @@ import com.example.demo.dto.ErrorResponse;
 import com.example.demo.dto.ResponseMetadata;
 import com.example.demo.exceptions.FieldNotFoundException;
 import com.example.demo.exceptions.StudyPlanNotFoundException;
+import com.example.demo.exceptions.DuplicateResourceException;
+
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -65,6 +70,37 @@ public class GlobalExceptionHandler {
         response.setMetadata(metadata);
         
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateResourceException(Exception ex) {
+        
+        ResponseMetadata metadata = createMetadata();
+        
+        ErrorResponse response = new ErrorResponse();
+        response.setError("Запрос отклонен");
+        response.setContent(ex.getMessage());
+        response.setMetadata(metadata);
+        
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+        
+        // Собираем все ошибки в список
+        List<String> errors = ex.getBindingResult()
+            .getFieldErrors()
+            .stream()
+            .map(error -> error.getField() + ": " + error.getDefaultMessage())
+            .collect(Collectors.toList());
+        
+        ErrorResponse response = new ErrorResponse();
+        response.setError("Ошибка валидации");
+        response.setContent("Неверные данные: " + String.join(", ", errors));
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Вспомогательный метод для создания метаданных
