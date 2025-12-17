@@ -14,6 +14,7 @@ import com.example.demo.dto.ResponseMetadata;
 import com.example.demo.exceptions.FieldNotFoundException;
 import com.example.demo.exceptions.StudyPlanNotFoundException;
 import com.example.demo.exceptions.DuplicateResourceException;
+import com.example.demo.exceptions.ValidationException;
 
 import java.util.List;
 
@@ -99,6 +100,17 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse();
         response.setError("Ошибка валидации");
         response.setContent("Неверные данные: " + String.join(", ", errors));
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponse> handleCustomValidation(
+            ValidationException ex) {
+        
+        ErrorResponse response = new ErrorResponse();
+        response.setError("Ошибка валидации");
+        response.setContent(String.join("; ", ex.getErrors()));  
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }

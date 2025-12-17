@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import com.example.demo.dto.repository.FieldOfStudyRepository;
 import com.example.demo.dto.repository.StudyPlanRepository;
 import com.example.demo.exceptions.FieldNotFoundException;
 import com.example.demo.exceptions.DuplicateResourceException;
+import com.example.demo.exceptions.ValidationException;
 
 @Service
 public class FieldOfStudyService {
@@ -53,9 +55,43 @@ public class FieldOfStudyService {
     // создание направления  
     @Transactional
     public FieldOfStudy createField(FieldOfStudy field) {
+
+        List<String> errors = new ArrayList<>();
+
+         
+        if (field.getFieldCode() == null || field.getFieldCode().trim().isEmpty()) {
+            errors.add("Код направления обязателен");
+        }
+    
+    
+        if (field.getFieldName() == null || field.getFieldName().trim().isEmpty()) {
+            errors.add("Название направления обязательно");
+        }
+    
+   
+        if (field.getDegreeLevel() == null || field.getDegreeLevel().trim().isEmpty()) {
+            errors.add("Уровень образования обязателен");
+        }
+    
+    
+        if (field.getStudyLength() == null) {
+            errors.add("Длительность обучения обязательна");
+        }
+        else if (field.getStudyLength() < 1 || field.getStudyLength() > 10) {
+            errors.add("Длительность обучения должна быть от 1 до 10 лет");
+        }
+    
+    
+        if (field.getProfileName() == null || field.getProfileName().trim().isEmpty()) {
+           errors.add("Наименование профиля обязательно");
+        }
         
         if (field.getFieldId() != null) {
-            throw new IllegalArgumentException("ID задается системой, а не пользователем");
+            errors.add("ID задается системой, а не пользователем");
+        }
+
+        if (!errors.isEmpty()) {
+            throw new ValidationException(errors);
         }
 
         // Проверка уникальности названия профиля
