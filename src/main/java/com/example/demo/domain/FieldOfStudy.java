@@ -23,7 +23,7 @@ public class FieldOfStudy {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "field_id")
+    @Column(name = "field_id", updatable = false, insertable = false)
     private Long fieldId;
     
     @NotBlank(message = "Код направления обязателен")

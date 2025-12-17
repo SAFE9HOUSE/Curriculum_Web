@@ -54,6 +54,10 @@ public class FieldOfStudyService {
     @Transactional
     public FieldOfStudy createField(FieldOfStudy field) {
         
+        if (field.getFieldId() != null) {
+            throw new IllegalArgumentException("ID задается системой, а не пользователем");
+        }
+
         // Проверка уникальности названия профиля
         if (fieldRepo.existsByProfileName(field.getProfileName())) {
             throw new DuplicateResourceException(
@@ -63,5 +67,70 @@ public class FieldOfStudyService {
         
         return fieldRepo.save(field);
     }
+    
+    // удаление направления  
+    @SuppressWarnings("null")
+    @Transactional
+    public void deleteField(Long fieldId) {
+    
+    if (!fieldRepo.existsById(fieldId)) {
+        throw new FieldNotFoundException(
+            "Направление с ID " + fieldId + " не найдено"
+        );
+    }
 
+        fieldRepo.deleteById(fieldId);
+    }
+
+    // обновление направления  
+    @SuppressWarnings("null")
+    @Transactional
+    public FieldOfStudy updateField(Long fieldId, FieldOfStudy updates) {
+    
+        if (updates.getFieldId() != null && !updates.getFieldId().equals(fieldId)) {
+            throw new IllegalArgumentException(
+            "Нельзя изменять ID направления");
+        }       
+        
+        FieldOfStudy existingField = fieldRepo.findById(fieldId)
+            .orElseThrow(() -> new FieldNotFoundException(
+            "Направление с ID " + fieldId + " не найдено"
+        ));
+    
+    
+        if (updates.getProfileName() != null && 
+        !existingField.getProfileName().equals(updates.getProfileName())) {
+        
+            if (fieldRepo.existsByProfileName(updates.getProfileName())) {
+                throw new DuplicateResourceException(
+                "Профиль с наименованием '" + updates.getProfileName() + "' уже существует"
+                );
+            }
+            existingField.setProfileName(updates.getProfileName());
+        }
+    
+    
+    if (updates.getFieldCode() != null) {
+        existingField.setFieldCode(updates.getFieldCode());
+    }
+    
+    if (updates.getFieldName() != null) {
+        existingField.setFieldName(updates.getFieldName());
+    }
+    
+    if (updates.getDegreeLevel() != null) {
+        existingField.setDegreeLevel(updates.getDegreeLevel());
+    }
+    
+    if (updates.getStudyLength() != null) {
+        existingField.setStudyLength(updates.getStudyLength());
+    }
+    
+    if (updates.getQualification() != null) {
+        existingField.setQualification(updates.getQualification());
+    }
+    
+    return fieldRepo.save(existingField);
+    
+    }
 }
