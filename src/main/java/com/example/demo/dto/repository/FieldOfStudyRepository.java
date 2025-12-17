@@ -11,4 +11,7 @@ public interface FieldOfStudyRepository extends JpaRepository<FieldOfStudy, Long
    
     // Метод для поиска по названию направления (регистронезависимый поиск)
     List<FieldOfStudy> findByFieldNameContainingIgnoreCase(String fieldName);
+    
+    // Проверка уникальности названи профиля при создании направления
+    boolean existsByProfileName(String profileName);
 }
