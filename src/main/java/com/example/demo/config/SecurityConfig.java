@@ -4,6 +4,7 @@ import com.example.demo.security.jwt.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     
@@ -50,10 +52,11 @@ public class SecurityConfig {
                 .requestMatchers("/api/test/both-roles").hasAnyRole("ADMIN", "MANAGER")
                 
                 // Всё в /api/admin/ доступно обеим ролям
-                .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "MANAGER")
+                // .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers("/api/admin/**").authenticated()
                 
                 // Остальное API - публичное 
-                .requestMatchers("/api/**").permitAll()
+                //.requestMatchers("/api/**").permitAll()
                 
                 .anyRequest().permitAll()
             )
