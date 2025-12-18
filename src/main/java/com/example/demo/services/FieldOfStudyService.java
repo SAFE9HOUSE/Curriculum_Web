@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -109,13 +110,31 @@ public class FieldOfStudyService {
     @Transactional
     public void deleteField(Long fieldId) {
     
-    if (!fieldRepo.existsById(fieldId)) {
-        throw new FieldNotFoundException(
-            "Направление с ID " + fieldId + " не найдено"
-        );
-    }
+        FieldOfStudy field = fieldRepo.findById(fieldId)
+        .orElseThrow(() -> new FieldNotFoundException(
+            "Направление с ID " + fieldId + " не найдено"));
+    
+    
+        List<StudyPlan> studyPlans = curriculumRepo.findByField_FieldId(fieldId);
+    
+        if (!studyPlans.isEmpty()) {
+            String plansInfo = studyPlans.stream()
+                .limit(5)
+                .map(p -> p.getStudyPlanName() + " (ID:" + p.getStudyPlanId() + ")")
+                .collect(Collectors.joining(", "));
+        
+            String errorMsg = "Невозможно удалить направление \"" + field.getFieldName() + 
+                "\". К нему привязано " + studyPlans.size() + 
+                " учебных планов: " + plansInfo;
+        
+            if (studyPlans.size() > 5) {
+                errorMsg += " и еще " + (studyPlans.size() - 5) + " планов";
+            }
+        
+            throw new ValidationException(Collections.singletonList(errorMsg));
+        }
 
-        fieldRepo.deleteById(fieldId);
+        fieldRepo.delete(field);  
     }
 
     // обновление направления  
