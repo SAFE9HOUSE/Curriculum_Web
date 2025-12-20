@@ -14,6 +14,7 @@ import com.example.demo.exceptions.FieldNotFoundException;
 import com.example.demo.exceptions.StudyPlanNotFoundException;
 import com.example.demo.exceptions.DuplicateResourceException;
 import com.example.demo.exceptions.ValidationException;
+import com.example.demo.exceptions.ArchiveStudyPlanException;
 
 import org.springframework.security.access.AccessDeniedException;
 
@@ -110,5 +111,16 @@ public class GlobalExceptionHandler {
         response.setContent("Недостаточно прав для выполнения операции");
         
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    @ExceptionHandler(ArchiveStudyPlanException.class)
+    public ResponseEntity<ErrorResponse> handleArchiveStudyPlanException(ArchiveStudyPlanException 
+        ex) {
+        
+        ErrorResponse response = new ErrorResponse();
+        response.setError("Запрос отклонен");
+        response.setContent(ex.getMessage());
+        
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 }

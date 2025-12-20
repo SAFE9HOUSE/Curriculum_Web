@@ -18,13 +18,13 @@ public interface StudyPlanRepository extends JpaRepository<StudyPlan, Long> {
 
     // проверка существования учебного плана с такими же признаками для конкретного направления
     @Query("SELECT CASE WHEN COUNT(sp) > 0 THEN true ELSE false END " +
-           "FROM StudyPlan sp " +
-           "WHERE sp.field.fieldId = :fieldId " +
-           "AND sp.studyPlanName = :studyPlanName " +
-           "AND sp.yearStart = :yearStart " +
-           "AND sp.yearEnd = :yearEnd " +
-           "AND sp.course = :course " +
-           "AND sp.status = :status")
+        "FROM StudyPlan sp " +
+        "WHERE sp.field.fieldId = :fieldId " +
+        "AND sp.studyPlanName = :studyPlanName " +
+        "AND sp.yearStart = :yearStart " +
+        "AND sp.yearEnd = :yearEnd " +
+        "AND sp.course = :course " +
+        "AND sp.status = :status")
     boolean existsByFieldAndParams(
         @Param("fieldId") Long fieldId,
         @Param("studyPlanName") String studyPlanName,
@@ -32,6 +32,27 @@ public interface StudyPlanRepository extends JpaRepository<StudyPlan, Long> {
         @Param("yearEnd") Integer yearEnd,
         @Param("course") Integer course,
         @Param("status") String status
+    );
+    
+    // проверка существования учебного плана с такими же признаками для конкретного направления 
+    // (исключая себя)
+    @Query("SELECT CASE WHEN COUNT(sp) > 0 THEN true ELSE false END " +
+       "FROM StudyPlan sp " +
+       "WHERE sp.field.fieldId = :fieldId " +
+       "AND sp.studyPlanName = :studyPlanName " +
+       "AND sp.yearStart = :yearStart " +
+       "AND sp.yearEnd = :yearEnd " +
+       "AND sp.course = :course " +
+       "AND sp.status = :status " +
+       "AND sp.studyPlanId != :excludeStudyPlanId")
+    boolean existsByFieldAndParamsExcludingSelf(
+        @Param("fieldId") Long fieldId,
+        @Param("studyPlanName") String studyPlanName,
+        @Param("yearStart") Integer yearStart,
+        @Param("yearEnd") Integer yearEnd,
+        @Param("course") Integer course,
+        @Param("status") String status,
+        @Param("excludeStudyPlanId") Long excludeStudyPlanId
     );
     
     // проверка принадлежности учебного плана к направлению при архивации (избегание неявных архиваций)

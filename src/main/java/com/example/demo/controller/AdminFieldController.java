@@ -35,13 +35,13 @@ public class AdminFieldController {
     // cоздание направления
     @PostMapping
     public ResponseEntity<SuccessResponse<FieldOfStudy>> createField(
-        @Valid @RequestBody FieldOfStudy fieldRequest) { 
+        @Valid 
+        @RequestBody FieldOfStudy fieldRequest) { 
         
         FieldOfStudy createdField = _fieldService.createField(fieldRequest);
         
         ResponseMetadata metadata = new ResponseMetadata();
         metadata.setResponseTime(LocalDateTime.now());
-        metadata.setObjectsCount(1);
         
         SuccessResponse<FieldOfStudy> response = new SuccessResponse<>();
         response.setData(createdField);
@@ -72,14 +72,14 @@ public class AdminFieldController {
     @PutMapping("/{id}")
     public ResponseEntity<SuccessResponse<FieldOfStudy>> updateField(
         @PathVariable String id,
-        @Valid @RequestBody FieldOfStudy updates) {
+        @Valid 
+        @RequestBody FieldOfStudy updates) {
         
         Long validId = ValidateFieldId.validateAndConvertFieldId(id);
         FieldOfStudy updatedField = _fieldService.updateField(validId, updates);
         
         ResponseMetadata metadata = new ResponseMetadata();
         metadata.setResponseTime(LocalDateTime.now());
-        metadata.setObjectsCount(1);
         
         SuccessResponse<FieldOfStudy> response = new SuccessResponse<>();
         response.setData(updatedField);
