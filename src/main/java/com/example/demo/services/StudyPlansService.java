@@ -6,6 +6,7 @@ import com.example.demo.Interfaces.IStudyPlanServise;
 import com.example.demo.domain.FieldOfStudy;
 import com.example.demo.domain.StudyPlan;
 import com.example.demo.dto.StudyPlansDisciplinesResponseDto;
+import com.example.demo.exceptions.ArchiveStudyPlanException;
 import com.example.demo.exceptions.DuplicateResourceException;
 import com.example.demo.exceptions.FieldNotFoundException;
 import com.example.demo.exceptions.StudyPlanNotFoundException;
@@ -80,50 +81,11 @@ public class StudyPlansService implements IStudyPlanServise {
         if (studyPlan.getCourse() == null) {
             errors.add("Курс обязателен");
         }
-        
-        if (studyPlan.getYearStart() != null) {
-            if (studyPlan.getYearStart() < 2015) {
-                errors.add("Год начала действия учебного плана не может быть раньше 2015");
-            }
-            if (studyPlan.getYearStart() > 2025) {
-                errors.add("Год начала действия учебного плана не может быть позже 2025");
-            }
-        }
-        
-        if (studyPlan.getYearEnd() != null) {
-            if (studyPlan.getYearEnd() < 2025) {
-                errors.add("Год окончания действия учебного плана не может быть раньше 2025");
-            }
-            if (studyPlan.getYearEnd() > 2035) {
-                errors.add("Год окончания действия учебного плана не может быть позже 2035");
-            }
-        }
     
         if (studyPlan.getYearStart() != null && studyPlan.getYearEnd() != null) {
             if (studyPlan.getYearEnd() <= studyPlan.getYearStart()) {
                 errors.add("Год окончания должен быть больше года начала");
             }
-        }
-        
-        if (studyPlan.getCourse() != null) {
-            if (studyPlan.getCourse() < 1) {
-                errors.add("Курс не может быть меньше 1");
-            }
-            else if (studyPlan.getCourse() > 10) {
-                errors.add("Курс не может быть больше 10");
-            }
-        }
-        
-        if (studyPlan.getStudyPlanName() != null && studyPlan.getStudyPlanName().length() > 200) {
-            errors.add("Название учебного плана не должно превышать 200 символов");
-        }
-        
-        if (studyPlan.getFilePath() != null && studyPlan.getFilePath().length() > 300) {
-            errors.add("Путь к файлам учебного плана не должен превышать 300 символов");
-        }
-        
-        if (studyPlan.getStatus() != null && studyPlan.getStatus().length() > 20) {
-            errors.add("Статус или версия учебного плана ограничены 20 символами");
         }
         
         if (studyPlan.getStudyPlanId() != null) {
@@ -169,18 +131,18 @@ public class StudyPlansService implements IStudyPlanServise {
     @SuppressWarnings("null")
     public StudyPlan toggleArchiveStatus(Long fieldId, Long studyPlanId) {
 
-        StudyPlan studyPlan = studyPlanRepositoryRepo.findById(studyPlanId)
+        if (!studyPlanRepositoryRepo.existsById(studyPlanId)) {
+            throw new StudyPlanNotFoundException(
+                "Учебный план с ID " + studyPlanId + " не найден");
+            }
+    
+        StudyPlan studyPlan = studyPlanRepositoryRepo
+            .findByStudyPlanIdAndField_FieldId(studyPlanId, fieldId)
             .orElseThrow(() -> new StudyPlanNotFoundException(
-                "Учебный план с ID " + studyPlanId + " не найден"));
-
-        studyPlan = studyPlanRepositoryRepo
-        .findByStudyPlanIdAndField_FieldId(studyPlanId, fieldId)
-        .orElseThrow(() -> new StudyPlanNotFoundException(
-            String.format(
-                "Учебный план с ID %d не найден в направлении ID %d",
-                studyPlanId, fieldId
-            )
-        ));
+                String.format(
+                    "Учебный план с ID %d не принадлежит направлению ID %d",
+                    studyPlanId, fieldId
+                )));
     
         boolean newStatus = !Boolean.TRUE.equals(studyPlan.getArchiveStatus());
         studyPlan.setArchiveStatus(newStatus);
@@ -189,6 +151,113 @@ public class StudyPlansService implements IStudyPlanServise {
         log.info("Учебный план {} {} (ID: {})", 
              studyPlan.getStudyPlanName(), action, studyPlanId);
     
+        return studyPlanRepositoryRepo.save(studyPlan);
+    }
+
+    // удаление учебного плана
+    @Transactional
+    @SuppressWarnings("null")
+    public void deleteStudyPlan(Long fieldId, Long studyPlanId) {
+
+        if (!studyPlanRepositoryRepo.existsById(studyPlanId)) {
+            throw new StudyPlanNotFoundException(
+                "Учебный план с ID " + studyPlanId + " не найден");
+        }
+    
+        StudyPlan studyPlan = studyPlanRepositoryRepo
+            .findByStudyPlanIdAndField_FieldId(studyPlanId, fieldId)
+            .orElseThrow(() -> new StudyPlanNotFoundException(
+                String.format(
+                    "Учебный план с ID %d не принадлежит направлению ID %d",
+                    studyPlanId, fieldId
+                )));
+
+        if (Boolean.TRUE.equals(studyPlan.getArchiveStatus())) {
+            throw new ArchiveStudyPlanException(
+                String.format(
+                    "Невозможно удалить учебный план, находящийся в архиве (ID: %d). ",
+                    studyPlanId));
+        }
+    
+        studyPlanRepositoryRepo.delete(studyPlan);
+    }
+
+    // обновление учебного плана 
+    @SuppressWarnings("null")
+    @Transactional
+    public StudyPlan updateStudyPlan(Long fieldId, Long studyPlanId, StudyPlan updates) {
+
+        if (!studyPlanRepositoryRepo.existsById(studyPlanId)) {
+            throw new StudyPlanNotFoundException(
+                "Учебный план с ID " + studyPlanId + " не найден");
+        }
+    
+        StudyPlan studyPlan = studyPlanRepositoryRepo
+            .findByStudyPlanIdAndField_FieldId(studyPlanId, fieldId)
+            .orElseThrow(() -> new StudyPlanNotFoundException(
+                String.format(
+                    "Учебный план с ID %d не принадлежит направлению ID %d",
+                    studyPlanId, fieldId
+                )));
+
+        if (Boolean.TRUE.equals(studyPlan.getArchiveStatus())) {
+            throw new ArchiveStudyPlanException(
+                String.format(
+                    "Невозможно изменить учебный план, находящийся в архиве (ID: %d). ",
+                    studyPlanId));
+        }
+        
+        if (updates.getStudyPlanName() != null) {
+            studyPlan.setStudyPlanName(updates.getStudyPlanName());
+        }
+    
+        if (updates.getYearStart() != null) {
+            studyPlan.setYearStart(updates.getYearStart());
+        }
+    
+        if (updates.getYearEnd() != null) {
+            studyPlan.setYearEnd(updates.getYearEnd());
+        }
+    
+        if (updates.getFilePath() != null) {
+            studyPlan.setFilePath(updates.getFilePath());
+        }
+    
+        if (updates.getCourse() != null) {
+            studyPlan.setCourse(updates.getCourse());
+        }
+    
+        if (updates.getStatus() != null) {
+            studyPlan.setStatus(updates.getStatus());
+        }
+        
+        // защита от пустого json (блокировка от самого себя)
+        boolean keyFieldsProvided = 
+            (updates.getStudyPlanName() != null) ||
+            (updates.getYearStart() != null) ||
+            (updates.getYearEnd() != null) ||
+            (updates.getCourse() != null) ||
+            (updates.getStatus() != null);
+        
+        if (keyFieldsProvided){
+            if (studyPlanRepositoryRepo.existsByFieldAndParamsExcludingSelf(fieldId, studyPlan.getStudyPlanName(),
+            studyPlan.getYearStart(), studyPlan.getYearEnd(), studyPlan.getCourse(),
+            studyPlan.getStatus(), studyPlanId)) {
+        
+                throw new DuplicateResourceException(
+                    String.format(
+                        "Учебный план с такими параметрами уже существует: " +
+                        "название='%s', период=%d-%d, курс=%d, версия='%s'",
+                        studyPlan.getStudyPlanName(),
+                        studyPlan.getYearStart(),
+                        studyPlan.getYearEnd(),
+                        studyPlan.getCourse(),
+                        studyPlan.getStatus()
+                    )
+                );
+            }
+        }
+
         return studyPlanRepositoryRepo.save(studyPlan);
     }
 }

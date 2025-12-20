@@ -24,7 +24,6 @@ public class AuthController {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
     
-    // === ДОБАВЬ ЭТОТ МЕТОД ===
     @GetMapping("/hash")
     public ResponseEntity<?> generateHash(@RequestParam String password) {
         try {
@@ -55,20 +54,20 @@ public class AuthController {
         log.info("Login attempt for user: {}", request.getUsername());
         
         try {
-            // 1. Ищем пользователя в БД
+            // ищем пользователя в БД
             Admin admin = adminRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> {
                     log.warn("User not found: {}", request.getUsername());
                     return new RuntimeException("Invalid credentials");
                 });
             
-            // 2. Проверяем пароль
+            // проверяем пароль
             if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
                 log.warn("Invalid password for user: {}", request.getUsername());
                 throw new RuntimeException("Invalid credentials");
             }
             
-            // 3. Генерируем токен с правильной ролью из enum
+            // генерируем токен с правильной ролью из enum
             String role = admin.getRole().name(); // "MANAGER" из AdminRole enum
             String token = jwtUtil.generateToken(admin.getUsername(), role);
             
@@ -78,7 +77,6 @@ public class AuthController {
             return ResponseEntity.ok(response);
             
         } catch (RuntimeException e) {
-            // Для security лучше не раскрывать детали ошибки
             log.error("Authentication failed: {}", e.getMessage());
             return ResponseEntity.status(401)
                 .body(Map.of("error", "Invalid username or password"));

@@ -59,29 +59,21 @@ public class FieldOfStudyService {
 
         List<String> errors = new ArrayList<>();
 
-         
         if (field.getFieldCode() == null || field.getFieldCode().trim().isEmpty()) {
             errors.add("Код направления обязателен");
         }
-    
     
         if (field.getFieldName() == null || field.getFieldName().trim().isEmpty()) {
             errors.add("Название направления обязательно");
         }
     
-   
         if (field.getDegreeLevel() == null || field.getDegreeLevel().trim().isEmpty()) {
             errors.add("Уровень образования обязателен");
         }
     
-    
         if (field.getStudyLength() == null) {
             errors.add("Длительность обучения обязательна");
         }
-        else if (field.getStudyLength() < 1 || field.getStudyLength() > 10) {
-            errors.add("Длительность обучения должна быть от 1 до 10 лет");
-        }
-    
     
         if (field.getProfileName() == null || field.getProfileName().trim().isEmpty()) {
            errors.add("Наименование профиля обязательно");
@@ -164,28 +156,28 @@ public class FieldOfStudyService {
             existingField.setProfileName(updates.getProfileName());
         }
     
+        
+        if (updates.getFieldCode() != null) {
+            existingField.setFieldCode(updates.getFieldCode());
+        }
     
-    if (updates.getFieldCode() != null) {
-        existingField.setFieldCode(updates.getFieldCode());
-    }
+        if (updates.getFieldName() != null) {
+            existingField.setFieldName(updates.getFieldName());
+        }
     
-    if (updates.getFieldName() != null) {
-        existingField.setFieldName(updates.getFieldName());
-    }
+        if (updates.getDegreeLevel() != null) {
+            existingField.setDegreeLevel(updates.getDegreeLevel());
+        }
     
-    if (updates.getDegreeLevel() != null) {
-        existingField.setDegreeLevel(updates.getDegreeLevel());
-    }
+        if (updates.getStudyLength() != null) {
+            existingField.setStudyLength(updates.getStudyLength());
+        }
     
-    if (updates.getStudyLength() != null) {
-        existingField.setStudyLength(updates.getStudyLength());
-    }
+        if (updates.getQualification() != null) {
+            existingField.setQualification(updates.getQualification());
+        }
     
-    if (updates.getQualification() != null) {
-        existingField.setQualification(updates.getQualification());
-    }
-    
-    return fieldRepo.save(existingField);
+        return fieldRepo.save(existingField);
     
     }
 }

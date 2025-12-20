@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.domain.StudyPlan;
 import com.example.demo.dto.ResponseMetadata;
 import com.example.demo.dto.SuccessResponse;
+import com.example.demo.exceptions.ValidateFieldId;
+import com.example.demo.exceptions.ValidateStudyPlanId;
 import com.example.demo.services.StudyPlansService;
 
 import jakarta.validation.Valid;
@@ -33,14 +37,16 @@ public class AdminStudyPlanController {
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PostMapping
     public ResponseEntity<SuccessResponse<StudyPlan>> createStudyPlan(
-        @PathVariable Long fieldId,
-        @Valid @RequestBody StudyPlan request) {
+        @PathVariable String fieldId,
+        @Valid 
+        @RequestBody StudyPlan request) {
+
+        Long validFieldId = ValidateFieldId.validateAndConvertFieldId(fieldId);
         
-        StudyPlan createdPlan = _studyService.createStudyPlan(fieldId, request);
+        StudyPlan createdPlan = _studyService.createStudyPlan(validFieldId, request);
         
         ResponseMetadata metadata = new ResponseMetadata();
         metadata.setResponseTime(LocalDateTime.now());
-        metadata.setObjectsCount(1);
         
         SuccessResponse<StudyPlan> response = new SuccessResponse<>();
         response.setData(createdPlan);
@@ -53,18 +59,69 @@ public class AdminStudyPlanController {
     @PatchMapping("/{planId}/archive")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse<StudyPlan>> toggleArchiveStatus(
-        @PathVariable Long fieldId,
-        @PathVariable Long planId) {
-   
-    
-        StudyPlan updatedPlan = _studyService.toggleArchiveStatus(fieldId, planId);
+        @PathVariable String fieldId,
+        @PathVariable String planId) {
+        
+        Long validFieldId = ValidateFieldId.validateAndConvertFieldId(fieldId);
+        Long validStudyPlanId = ValidateStudyPlanId.validateAndConvertStudyPlanId(planId);
+        
+        StudyPlan updatedPlan = _studyService.toggleArchiveStatus(validFieldId, validStudyPlanId);
     
         ResponseMetadata metadata = new ResponseMetadata();
         metadata.setResponseTime(LocalDateTime.now());
-        metadata.setObjectsCount(1);
     
         SuccessResponse<StudyPlan> response = new SuccessResponse<>();
         response.setData(updatedPlan);
+        response.setMetadata(metadata);
+    
+        return ResponseEntity.ok(response);
+    }
+
+    // удаление учебного плана
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @DeleteMapping("/{planId}")
+    public ResponseEntity<SuccessResponse<String>> deleteStudyPlan(
+        @PathVariable String fieldId,
+        @PathVariable String planId) {
+    
+        Long validFieldId = ValidateFieldId.validateAndConvertFieldId(fieldId);
+        Long validStudyPlanId = ValidateStudyPlanId.validateAndConvertStudyPlanId(planId);
+    
+        _studyService.deleteStudyPlan(validFieldId, validStudyPlanId);
+    
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+    
+        SuccessResponse<String> response = new SuccessResponse<>();
+        response.setData(String.format(
+            "Учебный план с ID %s удален из направления с ID %s", 
+            planId, fieldId));
+        
+        response.setMetadata(metadata);
+    
+        return ResponseEntity.ok(response);
+    }
+
+    // обновление учебного плана
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PutMapping("/{planId}")
+    public ResponseEntity<SuccessResponse<StudyPlan>> updateStudyPlan(
+        @PathVariable String fieldId,
+        @PathVariable String planId,
+        @Valid
+        @RequestBody StudyPlan updates) {
+
+        Long validFieldId = ValidateFieldId.validateAndConvertFieldId(fieldId);
+        Long validStudyPlanID = ValidateStudyPlanId.validateAndConvertStudyPlanId(planId);
+        
+        StudyPlan updateStudyPlan = _studyService.updateStudyPlan(validFieldId, 
+            validStudyPlanID, updates);
+        
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+        
+        SuccessResponse<StudyPlan> response = new SuccessResponse<>();
+        response.setData(updateStudyPlan);
         response.setMetadata(metadata);
     
         return ResponseEntity.ok(response);
