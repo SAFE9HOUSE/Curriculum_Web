@@ -16,9 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.StudyPlan;
 import com.example.demo.dto.ResponseMetadata;
+import com.example.demo.dto.StudyPlanContentDeleteRequest;
+import com.example.demo.dto.StudyPlanContentRequest;
+import com.example.demo.dto.StudyPlanContentUpdateRequest;
 import com.example.demo.dto.SuccessResponse;
 import com.example.demo.exceptions.ValidateFieldId;
 import com.example.demo.exceptions.ValidateStudyPlanId;
+import com.example.demo.services.StudyPlanContentService;
 import com.example.demo.services.StudyPlansService;
 
 import jakarta.validation.Valid;
@@ -28,9 +32,12 @@ import jakarta.validation.Valid;
 public class AdminStudyPlanController {
 
     private final StudyPlansService _studyService;
+    private final StudyPlanContentService _contentService;
 
-    public AdminStudyPlanController(StudyPlansService studyService) {
+    public AdminStudyPlanController(StudyPlansService studyService,
+        StudyPlanContentService contentService) {
         _studyService = studyService;
+        _contentService = contentService;
     }
 
     // создание учебного плана
@@ -124,6 +131,75 @@ public class AdminStudyPlanController {
         response.setData(updateStudyPlan);
         response.setMetadata(metadata);
     
+        return ResponseEntity.ok(response);
+    }
+    
+    // создание контента учебного плана
+    @PostMapping("/{planId}/content")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public ResponseEntity<SuccessResponse<String>> addContentToPlan(
+        @PathVariable String fieldId,
+        @PathVariable String planId,
+        @Valid @RequestBody StudyPlanContentRequest request) {
+    
+        Long validFieldId = ValidateFieldId.validateAndConvertFieldId(fieldId);
+        Long validPlanId = ValidateStudyPlanId.validateAndConvertStudyPlanId(planId);
+    
+       _contentService.addContentToPlan(validFieldId, validPlanId, request);
+
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+    
+        SuccessResponse<String> response = new SuccessResponse<>();
+        response.setData("Контент успешно добавлен в учебный план");
+        response.setMetadata(metadata);
+    
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+    
+    // удаление контента учебного плана
+    @DeleteMapping("/{planId}/content")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public ResponseEntity<SuccessResponse<String>> removeContentFromPlan(
+        @PathVariable String fieldId,
+        @PathVariable String planId,
+        @Valid @RequestBody StudyPlanContentDeleteRequest request) {
+    
+        Long validFieldId = ValidateFieldId.validateAndConvertFieldId(fieldId);
+        Long validPlanId = ValidateStudyPlanId.validateAndConvertStudyPlanId(planId);
+    
+        _contentService.removeContentFromPlan(validFieldId, validPlanId, request);
+    
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+    
+        SuccessResponse<String> response = new SuccessResponse<>();
+        response.setData("Контент успешно удален из учебного плана");
+        response.setMetadata(metadata);
+    
+        return ResponseEntity.ok(response);
+    }
+    
+    // частичное обновление контента учебного плана
+    @PutMapping("/{planId}/content")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public ResponseEntity<SuccessResponse<String>> updateContentInPlan(
+        @PathVariable String fieldId,
+        @PathVariable String planId,
+        @Valid @RequestBody StudyPlanContentUpdateRequest request) {
+
+        Long validFieldId = ValidateFieldId.validateAndConvertFieldId(fieldId);
+        Long validPlanId = ValidateStudyPlanId.validateAndConvertStudyPlanId(planId);
+
+        _contentService.updateContentInPlan(validFieldId, validPlanId, request);
+
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+
+        SuccessResponse<String> response = new SuccessResponse<>();
+        response.setData("Контент учебного плана успешно обновлен");
+        response.setMetadata(metadata);
+
         return ResponseEntity.ok(response);
     }
 }

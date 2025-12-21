@@ -74,4 +74,5 @@ public class StudyPlan {
     public void preUpdate() {
         this.lastModified = LocalDateTime.now();
     }
+    
 }

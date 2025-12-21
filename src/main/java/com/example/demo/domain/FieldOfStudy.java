@@ -51,4 +51,5 @@ public class FieldOfStudy {
 
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate = LocalDateTime.now();
+    
 }

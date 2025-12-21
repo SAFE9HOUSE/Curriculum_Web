@@ -15,6 +15,7 @@ import com.example.demo.exceptions.StudyPlanNotFoundException;
 import com.example.demo.exceptions.DuplicateResourceException;
 import com.example.demo.exceptions.ValidationException;
 import com.example.demo.exceptions.ArchiveStudyPlanException;
+import com.example.demo.exceptions.ResourceNotFoundException;
 
 import org.springframework.security.access.AccessDeniedException;
 
@@ -122,5 +123,16 @@ public class GlobalExceptionHandler {
         response.setContent(ex.getMessage());
         
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException
+    (ResourceNotFoundException ex) {
+        
+        ErrorResponse response = new ErrorResponse();
+        response.setError("Сущность не найдена"); 
+        response.setContent(ex.getMessage());
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 }
