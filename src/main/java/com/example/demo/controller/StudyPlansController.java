@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 import java.time.LocalDateTime;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +10,8 @@ import com.example.demo.dto.ResponseMetadata;
 import com.example.demo.dto.StudyPlansDisciplinesResponseDto;
 import com.example.demo.dto.SuccessResponse;
 import com.example.demo.services.StudyPlansService;
+import com.example.demo.services.PdfGenerateService;
+import org.springframework.http.*;
 
 import com.example.demo.exceptions.ValidateStudyPlanId;
 
@@ -20,9 +21,12 @@ import com.example.demo.exceptions.ValidateStudyPlanId;
 public class StudyPlansController {
 
     private final StudyPlansService _studyPlanService;
+    private final PdfGenerateService _pdfGenerateService;
 
-    public StudyPlansController(StudyPlansService studyPlanService) {
+    public StudyPlansController(StudyPlansService studyPlanService,
+        PdfGenerateService pdfGenerateService) {
         _studyPlanService = studyPlanService;
+        _pdfGenerateService = pdfGenerateService;
     }
 
     @GetMapping("/{studyPlanId}")
@@ -42,6 +46,27 @@ public class StudyPlansController {
         response.setMetadata(metadata);
 
         return ResponseEntity.ok(response);
+    }
+
+    // генерация pdf версии учебного плана
+    @GetMapping(value = "/{studyPlanId}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> getStudyPlanPdf(@PathVariable String studyPlanId) {
+        try {
+            Long validateStudyPlanId = ValidateStudyPlanId.validateAndConvertStudyPlanId(studyPlanId);
+            StudyPlansDisciplinesResponseDto data = _studyPlanService.getDisciplinesByStudyPlanId(validateStudyPlanId);
+
+            byte[] pdf = _pdfGenerateService.generateStudyPlanPdf(data);
+            
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"study-plan-" + studyPlanId + ".pdf\"")
+                .body(pdf);
+
+        } 
+        catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
 
