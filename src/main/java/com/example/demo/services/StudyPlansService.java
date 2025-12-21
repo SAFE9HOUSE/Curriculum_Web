@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.example.demo.dto.repository.FieldOfStudyRepository;
 import com.example.demo.dto.repository.StudyPlanRepository;
+import com.example.demo.dto.repository.SubsidiaryDiscipStudyPlanRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,9 @@ public class StudyPlansService implements IStudyPlanServise {
     
     @Autowired
     private FieldOfStudyRepository fieldOfStudyRepositoryRepo;
+    
+    @Autowired
+    private SubsidiaryDiscipStudyPlanRepository sdsRepository;
     
     @Override
     public StudyPlansDisciplinesResponseDto getDisciplinesByStudyPlanId(Long studyPlanId) {
@@ -178,6 +182,16 @@ public class StudyPlansService implements IStudyPlanServise {
                     "Невозможно удалить учебный план, находящийся в архиве (ID: %d). ",
                     studyPlanId));
         }
+
+        Long disciplineCount = sdsRepository.countByStudyPlan(studyPlan);
+    
+        if (disciplineCount != null && disciplineCount > 0) {
+            throw new ValidationException(
+                String.format(
+                    "Невозможно удалить учебный план ID %d. " +
+                    "Сначала удалите все дисциплины из плана (найдено дисциплин: %d).",
+                    studyPlan.getStudyPlanId(), disciplineCount));
+    }
     
         studyPlanRepositoryRepo.delete(studyPlan);
     }
