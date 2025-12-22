@@ -15,7 +15,6 @@ import org.springframework.http.*;
 
 import com.example.demo.exceptions.ValidateStudyPlanId;
 
-
 @RestController
 @RequestMapping("/api/curricula")
 public class StudyPlansController {
@@ -48,26 +47,20 @@ public class StudyPlansController {
         return ResponseEntity.ok(response);
     }
 
-    // генерация pdf версии учебного плана
     @GetMapping(value = "/{studyPlanId}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<byte[]> getStudyPlanPdf(@PathVariable String studyPlanId) {
-        try {
-            Long validateStudyPlanId = ValidateStudyPlanId.validateAndConvertStudyPlanId(studyPlanId);
-            StudyPlansDisciplinesResponseDto data = _studyPlanService.getDisciplinesByStudyPlanId(validateStudyPlanId);
-
-            byte[] pdf = _pdfGenerateService.generateStudyPlanPdf(data);
-            
-            return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"study-plan-" + studyPlanId + ".pdf\"")
+    public ResponseEntity<byte[]> getStudyPlanPdf
+    (@PathVariable String studyPlanId) throws Exception {
+        
+        Long validateStudyPlanId = ValidateStudyPlanId.validateAndConvertStudyPlanId(studyPlanId);
+        StudyPlansDisciplinesResponseDto data = _studyPlanService.getDisciplinesByStudyPlanId(validateStudyPlanId);
+        byte[] pdf = _pdfGenerateService.generateStudyPlanPdf(data);
+    
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"study-plan-" + studyPlanId + ".pdf\"")
                 .body(pdf);
-
-        } 
-        catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
     }
+    
 }
 
 
