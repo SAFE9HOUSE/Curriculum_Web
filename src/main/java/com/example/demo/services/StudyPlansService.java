@@ -53,7 +53,9 @@ public class StudyPlansService implements IStudyPlanServise {
         List<Map<String, Object>> rows = repositoryRepo.findDisciplinesByStudyPlanId(studyPlanId);
         
         if (rows.isEmpty()) {
-            throw new StudyPlanNotFoundException("Учебный план с ID " + studyPlanId + " не найден");
+            throw new StudyPlanNotFoundException(
+                "Учебный план с ID " + studyPlanId + " не найден," +
+                    " либо контент учебного плана отсутствует");
         }
         
         return mapperRepo.mapToStudyPlanDisciplinesResponse(rows);
@@ -137,9 +139,10 @@ public class StudyPlansService implements IStudyPlanServise {
 
         if (!studyPlanRepositoryRepo.existsById(studyPlanId)) {
             throw new StudyPlanNotFoundException(
-                "Учебный план с ID " + studyPlanId + " не найден");
-            }
-    
+                "Учебный план с ID " + studyPlanId + " не найден," +
+                    " либо контент учебного плана отсутствует");
+            }   
+                 
         StudyPlan studyPlan = studyPlanRepositoryRepo
             .findByStudyPlanIdAndField_FieldId(studyPlanId, fieldId)
             .orElseThrow(() -> new StudyPlanNotFoundException(
@@ -165,7 +168,8 @@ public class StudyPlansService implements IStudyPlanServise {
 
         if (!studyPlanRepositoryRepo.existsById(studyPlanId)) {
             throw new StudyPlanNotFoundException(
-                "Учебный план с ID " + studyPlanId + " не найден");
+                "Учебный план с ID " + studyPlanId + " не найден," +
+                    " либо контент учебного плана отсутствует");
         }
     
         StudyPlan studyPlan = studyPlanRepositoryRepo
@@ -191,7 +195,7 @@ public class StudyPlansService implements IStudyPlanServise {
                     "Невозможно удалить учебный план ID %d. " +
                     "Сначала удалите все дисциплины из плана (найдено дисциплин: %d).",
                     studyPlan.getStudyPlanId(), disciplineCount));
-    }
+        }
     
         studyPlanRepositoryRepo.delete(studyPlan);
     }
@@ -203,7 +207,8 @@ public class StudyPlansService implements IStudyPlanServise {
 
         if (!studyPlanRepositoryRepo.existsById(studyPlanId)) {
             throw new StudyPlanNotFoundException(
-                "Учебный план с ID " + studyPlanId + " не найден");
+                "Учебный план с ID " + studyPlanId + " не найден," +
+                    " либо контент учебного плана отсутствует");
         }
     
         StudyPlan studyPlan = studyPlanRepositoryRepo
