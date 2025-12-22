@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.example.demo.dto.ErrorResponse;
-
+import com.example.demo.dto.ResponseMetadata;
 import com.example.demo.exceptions.FieldNotFoundException;
 import com.example.demo.exceptions.StudyPlanNotFoundException;
 import com.example.demo.exceptions.DuplicateResourceException;
@@ -19,7 +19,7 @@ import com.example.demo.exceptions.ResourceNotFoundException;
 
 import org.springframework.security.access.AccessDeniedException;
 
-
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestControllerAdvice
@@ -29,8 +29,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNotFound(FieldNotFoundException ex) {
         
         ErrorResponse response = new ErrorResponse();
+
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+
         response.setError("Направление не найдено");
         response.setContent(ex.getMessage());
+
+        response.setMetadata(metadata);
     
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -39,8 +45,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleCurriculumNotFound(StudyPlanNotFoundException ex) {
         
         ErrorResponse response = new ErrorResponse();
+
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+        
         response.setError("Учебный план не найден"); 
         response.setContent(ex.getMessage());
+
+        response.setMetadata(metadata);
         
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -49,8 +61,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
          
         ErrorResponse response = new ErrorResponse();
+        
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+
         response.setError("Неверный запрос");
         response.setContent(ex.getMessage());
+
+        response.setMetadata(metadata);
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -59,8 +77,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
         
         ErrorResponse response = new ErrorResponse();
+
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+
         response.setError("Внутренняя ошибка сервера (возможно неверный путь)");
         response.setContent("Обратитесь к администратору");
+
+        response.setMetadata(metadata);
         
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
@@ -69,8 +93,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDuplicateResourceException(Exception ex) {
         
         ErrorResponse response = new ErrorResponse();
+        
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+
         response.setError("Запрос отклонен");
         response.setContent(ex.getMessage());
+
+        response.setMetadata(metadata);
         
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
@@ -87,8 +117,14 @@ public class GlobalExceptionHandler {
             .collect(Collectors.toList());
         
         ErrorResponse response = new ErrorResponse();
+        
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+
         response.setError("Ошибка валидации");
         response.setContent("Неверные данные: " + String.join(", ", errors));
+
+        response.setMetadata(metadata);
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -98,8 +134,14 @@ public class GlobalExceptionHandler {
             ValidationException ex) {
         
         ErrorResponse response = new ErrorResponse();
+
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+        
         response.setError("Ошибка валидации");
         response.setContent(String.join("; ", ex.getErrors()));  
+
+        response.setMetadata(metadata);
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -108,8 +150,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
         
         ErrorResponse response = new ErrorResponse();
+
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+
         response.setError("Доступ запрещен");
         response.setContent("Недостаточно прав для выполнения операции");
+
+        response.setMetadata(metadata);
         
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
@@ -119,8 +167,14 @@ public class GlobalExceptionHandler {
         ex) {
         
         ErrorResponse response = new ErrorResponse();
+
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+
         response.setError("Запрос отклонен");
         response.setContent(ex.getMessage());
+
+        response.setMetadata(metadata);
         
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
@@ -130,8 +184,14 @@ public class GlobalExceptionHandler {
     (ResourceNotFoundException ex) {
         
         ErrorResponse response = new ErrorResponse();
+      
+        ResponseMetadata metadata = new ResponseMetadata();
+        metadata.setResponseTime(LocalDateTime.now());
+         
         response.setError("Сущность не найдена"); 
         response.setContent(ex.getMessage());
+       
+        response.setMetadata(metadata);
         
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }

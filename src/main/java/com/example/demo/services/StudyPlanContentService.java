@@ -236,6 +236,12 @@ public class StudyPlanContentService {
                 dto.getCurrentTerm()));
             return;
         }
+
+        if (dto.getNewTerm() != 1 && dto.getNewTerm() != 2) {
+            errors.add(String.format("Новый семестр должен быть 1 или 2, получено: %d", 
+                dto.getNewTerm()));
+            return;
+        }
     
         // находим дисциплину
         Discipline discipline = disciplineRepository.findById(dto.getDisciplineId())
