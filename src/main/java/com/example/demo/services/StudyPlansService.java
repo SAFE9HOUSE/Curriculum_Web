@@ -139,8 +139,7 @@ public class StudyPlansService implements IStudyPlanServise {
 
         if (!studyPlanRepositoryRepo.existsById(studyPlanId)) {
             throw new StudyPlanNotFoundException(
-                "Учебный план с ID " + studyPlanId + " не найден," +
-                    " либо контент учебного плана отсутствует");
+                "Учебный план с ID " + studyPlanId + " не найден");
             }   
                  
         StudyPlan studyPlan = studyPlanRepositoryRepo
@@ -168,8 +167,7 @@ public class StudyPlansService implements IStudyPlanServise {
 
         if (!studyPlanRepositoryRepo.existsById(studyPlanId)) {
             throw new StudyPlanNotFoundException(
-                "Учебный план с ID " + studyPlanId + " не найден," +
-                    " либо контент учебного плана отсутствует");
+                "Учебный план с ID " + studyPlanId + " не найден");
         }
     
         StudyPlan studyPlan = studyPlanRepositoryRepo
@@ -207,8 +205,7 @@ public class StudyPlansService implements IStudyPlanServise {
 
         if (!studyPlanRepositoryRepo.existsById(studyPlanId)) {
             throw new StudyPlanNotFoundException(
-                "Учебный план с ID " + studyPlanId + " не найден," +
-                    " либо контент учебного плана отсутствует");
+                "Учебный план с ID " + studyPlanId + " не найден");
         }
     
         StudyPlan studyPlan = studyPlanRepositoryRepo
